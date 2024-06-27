@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "raven-hass"
+version = "0.0.1"
+dependencies = [
+  "httpx",
+  "pydantic",
+  "websockets"
+]
+requires-python = ">=3.12"
+authors = [
+  {name = "Dax Harris", email = "mvh3875@rit.edu"}
+]
+description = "Asynchronous wrapper around the HASS REST & WS API"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["api", "async", "homeassistant", "rest", "ws"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python",
+  "License :: OSI Approved :: MIT License",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "python-dotenv"
+]
+
+[project.urls]
+Homepage = "https://github.com/iTecAI/raven-hass"
+Repository = "https://github.com/iTecAI/raven-hass.git"
