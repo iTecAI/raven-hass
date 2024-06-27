@@ -12,10 +12,5 @@ def hass_token() -> str:
 
 
 @pytest.fixture
-def hass_rest() -> str:
+def hass_api() -> str:
     return os.environ["HASS_API"]
-
-
-@pytest.fixture
-def hass_ws() -> str:
-    return os.environ["HASS_WS"]
