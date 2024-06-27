@@ -2,12 +2,16 @@ from asyncio import Event, Queue, Task, create_task
 from contextlib import asynccontextmanager, contextmanager
 import json
 from traceback import print_exc
-from typing import Any, AsyncGenerator, TypeVar
+from typing import Any, AsyncGenerator, Generator, Type, TypeVar
 from urllib.parse import urlparse
 from uuid import uuid4
 from httpx import AsyncClient
 from websockets import ConnectionClosed, WebSocketClientProtocol, connect
 from .models import WS_MESSAGE_TYPES, WSMessage, WSResult
+from pydantic import BaseModel
+
+TMessage = TypeVar("TMessage", bound=WSMessage)
+TResult = TypeVar("TResult", bound=BaseModel)
 
 
 class BaseApi:
@@ -74,7 +78,7 @@ class BaseApi:
             }
         )
         self.ws_task = create_task(self.run_ws())
-        with self.events("auth_required", "auth_ok", "auth_invalid") as events:
+        with self.messages("auth_required", "auth_ok", "auth_invalid") as events:
             async for event in events:
                 if event.type == "auth_required":
                     await self.ws.send(
@@ -94,7 +98,11 @@ class BaseApi:
             self.ws_task.cancel()
 
     @contextmanager
-    def events(self, *event_types: str):
+    def messages[
+        TMessage
+    ](self, *event_types: str, _type: Type[TMessage] = None) -> Generator[
+        AsyncGenerator[TMessage, Any], Any, None
+    ]:
         queue = Queue()
         ids = []
         for ev in list(set(event_types)):
@@ -120,9 +128,14 @@ class BaseApi:
         await self.ws.send(json.dumps(data))
         return msg_id
 
-    async def send_ws_command(self, type: str, **kwargs) -> WSResult:
-        with self.events("result") as results:
+    async def send_ws_command[
+        TResult
+    ](self, type: str, _type: Type[TResult] = None, **kwargs) -> WSResult[TResult]:
+        with self.messages("result", _type=WSResult) as results:
             msg_id = await self.send_ws(type, **kwargs)
             async for message in results:
                 if message.id == msg_id:
                     return message
+
+    async def subscribe_events(self, event: str | None = None):
+        pass

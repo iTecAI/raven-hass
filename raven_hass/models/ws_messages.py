@@ -22,10 +22,10 @@ class WSAuthResult(WSMessage):
         return self.type == "auth_ok"
 
 
-class WSResult(WSMessage):
+class WSResult[T](WSMessage):
     type: Literal["result"]
     success: bool
-    result: Any | None = None
+    result: T | None = None
     error: Any | None = None
 
 
