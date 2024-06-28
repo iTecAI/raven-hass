@@ -1,5 +1,5 @@
-from datetime import date, datetime
-from enum import IntFlag, StrEnum
+from datetime import date, datetime, time
+from enum import IntEnum, IntFlag, StrEnum
 from typing import Any, Literal
 from pydantic import BaseModel, computed_field, model_validator
 
@@ -427,7 +427,7 @@ class DateEntity(HAEntity):
     attributes: DateAttributes
 
 
-# Date
+# Datetime
 
 
 class DateTimeAttributes(BaseAttributes):
@@ -818,3 +818,870 @@ class MediaPlayerAttributes(BaseAttributes):
 class MediaPlayerEntity(HAEntity):
     domain: Platform.MEDIA_PLAYER
     attributes: MediaPlayerAttributes
+
+
+# Notify
+class NotifyEntity(HAEntity):
+    domain: Platform.NOTIFY
+
+
+# Number
+class NumberMode(StrEnum):
+    """Modes for number entities."""
+
+    AUTO = "auto"
+    BOX = "box"
+    SLIDER = "slider"
+
+
+class NumericalDeviceClass(StrEnum):
+    """Device class for numbers."""
+
+    # NumberDeviceClass should be aligned with SensorDeviceClass
+
+    APPARENT_POWER = "apparent_power"
+    """Apparent power.
+
+    Unit of measurement: `VA`
+    """
+
+    AQI = "aqi"
+    """Air Quality Index.
+
+    Unit of measurement: `None`
+    """
+
+    ATMOSPHERIC_PRESSURE = "atmospheric_pressure"
+    """Atmospheric pressure.
+
+    Unit of measurement: `UnitOfPressure` units
+    """
+
+    BATTERY = "battery"
+    """Percentage of battery that is left.
+
+    Unit of measurement: `%`
+    """
+
+    CO = "carbon_monoxide"
+    """Carbon Monoxide gas concentration.
+
+    Unit of measurement: `ppm` (parts per million)
+    """
+
+    CO2 = "carbon_dioxide"
+    """Carbon Dioxide gas concentration.
+
+    Unit of measurement: `ppm` (parts per million)
+    """
+
+    CONDUCTIVITY = "conductivity"
+    """Conductivity.
+
+    Unit of measurement: `S/cm`, `mS/cm`, `µS/cm`
+    """
+
+    CURRENT = "current"
+    """Current.
+
+    Unit of measurement: `A`,  `mA`
+    """
+
+    DATA_RATE = "data_rate"
+    """Data rate.
+
+    Unit of measurement: UnitOfDataRate
+    """
+
+    DATA_SIZE = "data_size"
+    """Data size.
+
+    Unit of measurement: UnitOfInformation
+    """
+
+    DISTANCE = "distance"
+    """Generic distance.
+
+    Unit of measurement: `LENGTH_*` units
+    - SI /metric: `mm`, `cm`, `m`, `km`
+    - USCS / imperial: `in`, `ft`, `yd`, `mi`
+    """
+
+    DURATION = "duration"
+    """Fixed duration.
+
+    Unit of measurement: `d`, `h`, `min`, `s`, `ms`
+    """
+
+    ENERGY = "energy"
+    """Energy.
+
+    Unit of measurement: `Wh`, `kWh`, `MWh`, `MJ`, `GJ`
+    """
+
+    ENERGY_STORAGE = "energy_storage"
+    """Stored energy.
+
+    Use this device class for sensors measuring stored energy, for example the amount
+    of electric energy currently stored in a battery or the capacity of a battery.
+
+    Unit of measurement: `Wh`, `kWh`, `MWh`, `MJ`, `GJ`
+    """
+
+    FREQUENCY = "frequency"
+    """Frequency.
+
+    Unit of measurement: `Hz`, `kHz`, `MHz`, `GHz`
+    """
+
+    GAS = "gas"
+    """Gas.
+
+    Unit of measurement:
+    - SI / metric: `m³`
+    - USCS / imperial: `ft³`, `CCF`
+    """
+
+    HUMIDITY = "humidity"
+    """Relative humidity.
+
+    Unit of measurement: `%`
+    """
+
+    ILLUMINANCE = "illuminance"
+    """Illuminance.
+
+    Unit of measurement: `lx`
+    """
+
+    IRRADIANCE = "irradiance"
+    """Irradiance.
+
+    Unit of measurement:
+    - SI / metric: `W/m²`
+    - USCS / imperial: `BTU/(h⋅ft²)`
+    """
+
+    MOISTURE = "moisture"
+    """Moisture.
+
+    Unit of measurement: `%`
+    """
+
+    MONETARY = "monetary"
+    """Amount of money.
+
+    Unit of measurement: ISO4217 currency code
+
+    See https://en.wikipedia.org/wiki/ISO_4217#Active_codes for active codes
+    """
+
+    NITROGEN_DIOXIDE = "nitrogen_dioxide"
+    """Amount of NO2.
+
+    Unit of measurement: `µg/m³`
+    """
+
+    NITROGEN_MONOXIDE = "nitrogen_monoxide"
+    """Amount of NO.
+
+    Unit of measurement: `µg/m³`
+    """
+
+    NITROUS_OXIDE = "nitrous_oxide"
+    """Amount of N2O.
+
+    Unit of measurement: `µg/m³`
+    """
+
+    OZONE = "ozone"
+    """Amount of O3.
+
+    Unit of measurement: `µg/m³`
+    """
+
+    PH = "ph"
+    """Potential hydrogen (acidity/alkalinity).
+
+    Unit of measurement: Unitless
+    """
+
+    PM1 = "pm1"
+    """Particulate matter <= 1 μm.
+
+    Unit of measurement: `µg/m³`
+    """
+
+    PM10 = "pm10"
+    """Particulate matter <= 10 μm.
+
+    Unit of measurement: `µg/m³`
+    """
+
+    PM25 = "pm25"
+    """Particulate matter <= 2.5 μm.
+
+    Unit of measurement: `µg/m³`
+    """
+
+    POWER_FACTOR = "power_factor"
+    """Power factor.
+
+    Unit of measurement: `%`, `None`
+    """
+
+    POWER = "power"
+    """Power.
+
+    Unit of measurement: `W`, `kW`
+    """
+
+    PRECIPITATION = "precipitation"
+    """Accumulated precipitation.
+
+    Unit of measurement: UnitOfPrecipitationDepth
+    - SI / metric: `cm`, `mm`
+    - USCS / imperial: `in`
+    """
+
+    PRECIPITATION_INTENSITY = "precipitation_intensity"
+    """Precipitation intensity.
+
+    Unit of measurement: UnitOfVolumetricFlux
+    - SI /metric: `mm/d`, `mm/h`
+    - USCS / imperial: `in/d`, `in/h`
+    """
+
+    PRESSURE = "pressure"
+    """Pressure.
+
+    Unit of measurement:
+    - `mbar`, `cbar`, `bar`
+    - `Pa`, `hPa`, `kPa`
+    - `inHg`
+    - `psi`
+    """
+
+    REACTIVE_POWER = "reactive_power"
+    """Reactive power.
+
+    Unit of measurement: `var`
+    """
+
+    SIGNAL_STRENGTH = "signal_strength"
+    """Signal strength.
+
+    Unit of measurement: `dB`, `dBm`
+    """
+
+    SOUND_PRESSURE = "sound_pressure"
+    """Sound pressure.
+
+    Unit of measurement: `dB`, `dBA`
+    """
+
+    SPEED = "speed"
+    """Generic speed.
+
+    Unit of measurement: `SPEED_*` units or `UnitOfVolumetricFlux`
+    - SI /metric: `mm/d`, `mm/h`, `m/s`, `km/h`
+    - USCS / imperial: `in/d`, `in/h`, `ft/s`, `mph`
+    - Nautical: `kn`
+    """
+
+    SULPHUR_DIOXIDE = "sulphur_dioxide"
+    """Amount of SO2.
+
+    Unit of measurement: `µg/m³`
+    """
+
+    TEMPERATURE = "temperature"
+    """Temperature.
+
+    Unit of measurement: `°C`, `°F`, `K`
+    """
+
+    VOLATILE_ORGANIC_COMPOUNDS = "volatile_organic_compounds"
+    """Amount of VOC.
+
+    Unit of measurement: `µg/m³`
+    """
+
+    VOLATILE_ORGANIC_COMPOUNDS_PARTS = "volatile_organic_compounds_parts"
+    """Ratio of VOC.
+
+    Unit of measurement: `ppm`, `ppb`
+    """
+
+    VOLTAGE = "voltage"
+    """Voltage.
+
+    Unit of measurement: `V`, `mV`
+    """
+
+    VOLUME = "volume"
+    """Generic volume.
+
+    Unit of measurement: `VOLUME_*` units
+    - SI / metric: `mL`, `L`, `m³`
+    - USCS / imperial: `ft³`, `CCF`, `fl. oz.`, `gal` (warning: volumes expressed in
+    USCS/imperial units are currently assumed to be US volumes)
+    """
+
+    VOLUME_STORAGE = "volume_storage"
+    """Generic stored volume.
+
+    Use this device class for sensors measuring stored volume, for example the amount
+    of fuel in a fuel tank.
+
+    Unit of measurement: `VOLUME_*` units
+    - SI / metric: `mL`, `L`, `m³`
+    - USCS / imperial: `ft³`, `CCF`, `fl. oz.`, `gal` (warning: volumes expressed in
+    USCS/imperial units are currently assumed to be US volumes)
+    """
+
+    VOLUME_FLOW_RATE = "volume_flow_rate"
+    """Generic flow rate
+
+    Unit of measurement: UnitOfVolumeFlowRate
+    - SI / metric: `m³/h`, `L/min`
+    - USCS / imperial: `ft³/min`, `gal/min`
+    """
+
+    WATER = "water"
+    """Water.
+
+    Unit of measurement:
+    - SI / metric: `m³`, `L`
+    - USCS / imperial: `ft³`, `CCF`, `gal` (warning: volumes expressed in
+    USCS/imperial units are currently assumed to be US volumes)
+    """
+
+    WEIGHT = "weight"
+    """Generic weight, represents a measurement of an object's mass.
+
+    Weight is used instead of mass to fit with every day language.
+
+    Unit of measurement: `MASS_*` units
+    - SI / metric: `µg`, `mg`, `g`, `kg`
+    - USCS / imperial: `oz`, `lb`
+    """
+
+    WIND_SPEED = "wind_speed"
+    """Wind speed.
+
+    Unit of measurement: `SPEED_*` units
+    - SI /metric: `m/s`, `km/h`
+    - USCS / imperial: `ft/s`, `mph`
+    - Nautical: `kn`
+    """
+
+
+class NumberAttributes(BaseAttributes):
+    device_class: NumericalDeviceClass | str | None = None
+    mode: NumberMode | str = NumberMode.AUTO
+    native_max_value: float = 100
+    native_min_value: float = 0
+    native_step: float = 1
+    native_value: float = 0
+    native_unit_of_measurement: str | None = None
+
+
+class NumberEntity(HAEntity):
+    domain: Platform.NUMBER
+    attributes: NumberAttributes
+
+
+# Remote
+
+
+class RemoteEntityFeature(IntFlag):
+    """Supported features of the remote entity."""
+
+    LEARN_COMMAND = 1
+    DELETE_COMMAND = 2
+    ACTIVITY = 4
+
+
+class RemoteAttributes(BaseAttributes):
+    supported_features: RemoteEntityFeature | None = None
+    current_activity: str | None = None
+    activity_list: list[str] | None = None
+
+
+class RemoteEntity(HAEntity):
+    domain: Platform.REMOTE
+    attributes: RemoteAttributes
+
+
+# Scene
+
+
+class SceneEntity(HAEntity):
+    domain: Platform.SCENE
+
+
+# Select
+
+
+class SelectAttributes(BaseAttributes):
+    current_option: str | None = None
+    options: list[str] = []
+
+
+class SelectEntity(HAEntity):
+    domain: Platform.SELECT
+    attributes: SelectAttributes
+
+
+# Sensor
+class SensorStateClass(StrEnum):
+    MEASUREMENT = "measurement"
+    TOTAL = "total"
+    TOTAL_INCREASING = "total_increasing"
+
+
+class SensorAttributes(BaseAttributes):
+    device_class: NumericalDeviceClass | str | None = None
+    last_reset: datetime | None = None
+    native_unit_of_measurement: str | None = None
+    native_value: Any = None
+    options: list | None = None
+    state_class: SensorStateClass | str | None = None
+    suggested_display_precision: int | None = None
+    suggested_unit_of_measurement: str | None = None
+
+
+class SensorEntity(HAEntity):
+    domain: Platform.SENSOR
+    attributes: SensorAttributes
+
+
+# Siren
+class SirenEntityFeature(IntFlag):
+    """Supported features of the siren entity."""
+
+    TURN_ON = 1
+    TURN_OFF = 2
+    TONES = 4
+    VOLUME_SET = 8
+    DURATION = 16
+
+
+class SirenAttributes(BaseAttributes):
+    is_on: bool | None = None
+    available_tones: list | dict | None = None
+    supported_features: SirenEntityFeature | None = None
+
+
+class SirenEntity(HAEntity):
+    domain: Platform.SIREN
+    attributes: SirenAttributes
+
+
+# STT
+class AudioCodecs(StrEnum):
+    """Supported Audio codecs."""
+
+    PCM = "pcm"
+    OPUS = "opus"
+
+
+class AudioFormats(StrEnum):
+    """Supported Audio formats."""
+
+    WAV = "wav"
+    OGG = "ogg"
+
+
+class AudioBitRates(IntEnum):
+    """Supported Audio bit rates."""
+
+    BITRATE_8 = 8
+    BITRATE_16 = 16
+    BITRATE_24 = 24
+    BITRATE_32 = 32
+
+
+class AudioSampleRates(IntEnum):
+    """Supported Audio sample rates."""
+
+    SAMPLERATE_8000 = 8000
+    SAMPLERATE_11000 = 11000
+    SAMPLERATE_16000 = 16000
+    SAMPLERATE_18900 = 18900
+    SAMPLERATE_22000 = 22000
+    SAMPLERATE_32000 = 32000
+    SAMPLERATE_37800 = 37800
+    SAMPLERATE_44100 = 44100
+    SAMPLERATE_48000 = 48000
+
+
+class AudioChannels(IntEnum):
+    """Supported Audio channel."""
+
+    CHANNEL_MONO = 1
+    CHANNEL_STEREO = 2
+
+
+class SpeechResultState(StrEnum):
+    """Result state of speech."""
+
+    SUCCESS = "success"
+    ERROR = "error"
+
+
+class STTAttributes(BaseAttributes):
+    supported_languages: list[str] = []
+    supported_formats: list[AudioFormats] = []
+    supported_codecs: list[AudioCodecs] = []
+    supported_bit_rates: list[AudioBitRates] = []
+    supported_sample_rates: list[AudioSampleRates] = []
+    supported_channels: list[AudioChannels]
+
+
+class STTEntity(HAEntity):
+    domain: Platform.STT
+    attributes: STTAttributes
+
+
+# Switch
+class SwitchDeviceClass(StrEnum):
+    OUTLET = "outlet"
+    SWITCH = "switch"
+
+
+class SwitchAttributes(BaseAttributes):
+    is_on: bool | None = None
+    device_class: SwitchDeviceClass | None = None
+
+
+class SwitchEntity(HAEntity):
+    domain: Platform.SWITCH
+    attributes: SwitchAttributes
+
+
+# Text
+
+
+class TextMode(StrEnum):
+    TEXT = "text"
+    PASSWORD = "password"
+
+
+class TextAttributes(BaseAttributes):
+    mode: TextMode = TextMode.TEXT
+    native_max: int = 100
+    native_min: int = 0
+    pattern: str | None = None
+    native_value: str = ""
+
+
+class TextEntity(HAEntity):
+    domain: Platform.TEXT
+    attributes: TextAttributes
+
+
+# Time
+class TimeAttributes(BaseAttributes):
+    native_value: time | None = None
+
+
+class TimeEntity(HAEntity):
+    domain: Platform.TIME
+    attributes: TimeAttributes
+
+
+# Todo list
+class TodoListEntityFeature(IntFlag):
+    """Supported features of the To-do List entity."""
+
+    CREATE_TODO_ITEM = 1
+    DELETE_TODO_ITEM = 2
+    UPDATE_TODO_ITEM = 4
+    MOVE_TODO_ITEM = 8
+    SET_DUE_DATE_ON_ITEM = 16
+    SET_DUE_DATETIME_ON_ITEM = 32
+    SET_DESCRIPTION_ON_ITEM = 64
+
+
+class TodoItemStatus(StrEnum):
+    """Status or confirmation of a To-do List Item.
+
+    This is a subset of the statuses supported in rfc5545.
+    """
+
+    NEEDS_ACTION = "needs_action"
+    COMPLETED = "completed"
+
+
+class TodoListItem(BaseModel):
+    uid: str | None = None
+    summary: str | None = None
+    status: TodoItemStatus | None = None
+    due: date | datetime | None = None
+    description: str | None = None
+
+
+class TodoListAttributes(BaseAttributes):
+    todo_items: list[TodoListItem] | None = None
+    supported_features: TodoListEntityFeature | None = None
+
+
+class TodoListEntity(HAEntity):
+    domain: Platform.TODO
+    attributes: TodoListAttributes
+
+
+# TTS
+
+
+class TTSAttributes(BaseAttributes):
+    supported_languages: list[str] = []
+    default_language: str | None = None
+    supported_options: list[str] | None = None
+    default_options: dict[str, Any] | None = None
+
+
+class TTSEntity(HAEntity):
+    domain: Platform.TTS
+    attributes: TTSAttributes
+
+
+# Update
+class UpdateEntityFeature(IntFlag):
+    """Supported features of the update entity."""
+
+    INSTALL = 1
+    SPECIFIC_VERSION = 2
+    PROGRESS = 4
+    BACKUP = 8
+    RELEASE_NOTES = 16
+
+
+class UpdateDeviceClass(StrEnum):
+    """Device class for update."""
+
+    FIRMWARE = "firmware"
+
+
+class UpdateAttributes(BaseAttributes):
+    auto_update: bool = False
+    in_progress: bool | int | None = None
+    installed_version: str | None = None
+    latest_version: str | None = None
+    release_summary: str | None = None
+    release_url: str | None = None
+    title: str | None = None
+    supported_features: UpdateEntityFeature | None = None
+    device_class: UpdateDeviceClass | None = None
+
+
+class UpdateEntity(HAEntity):
+    domain: Platform.UPDATE
+    attributes: UpdateAttributes
+
+
+# Vacuum
+class VacuumEntityFeature(IntFlag):
+    """Supported features of the vacuum entity."""
+
+    TURN_ON = 1  # Deprecated, not supported by StateVacuumEntity
+    TURN_OFF = 2  # Deprecated, not supported by StateVacuumEntity
+    PAUSE = 4
+    STOP = 8
+    RETURN_HOME = 16
+    FAN_SPEED = 32
+    BATTERY = 64
+    STATUS = 128  # Deprecated, not supported by StateVacuumEntity
+    SEND_COMMAND = 256
+    LOCATE = 512
+    CLEAN_SPOT = 1024
+    MAP = 2048
+    STATE = 4096  # Must be set by vacuum platforms derived from StateVacuumEntity
+    START = 8192
+
+
+class VacuumEntityState(StrEnum):
+    CLEANING = "cleaning"
+    DOCKED = "docked"
+    RETURNING = "returning"
+    ERROR = "error"
+
+
+class VacuumAttributes(BaseAttributes):
+    battery_icon: str | None = None
+    battery_level: int | None = None
+    fan_speed: str | None = None
+    fan_speed_list: list | None = None
+    name: str | None = None
+    state: VacuumEntityState | None = None
+    supported_features: VacuumEntityFeature | None = None
+
+
+class VacuumEntity(HAEntity):
+    domain: Platform.VACUUM
+    attributes: VacuumAttributes
+    state: VacuumEntityState | Any
+
+
+# Valve
+class ValveDeviceClass(StrEnum):
+    """Device class for valve."""
+
+    # Refer to the valve dev docs for device class descriptions
+    WATER = "water"
+    GAS = "gas"
+
+
+# mypy: disallow-any-generics
+class ValveEntityFeature(IntFlag):
+    """Supported features of the valve entity."""
+
+    OPEN = 1
+    CLOSE = 2
+    SET_POSITION = 4
+    STOP = 8
+
+
+class ValveState(StrEnum):
+    OPENING = "opening"
+    OPEN = "open"
+    CLOSING = "closing"
+    CLOSED = "closed"
+
+
+class ValveAttributes(BaseAttributes):
+    current_valve_position: int | None = None
+    is_closed: bool | None = None
+    is_closing: bool | None = None
+    is_opening: bool | None = None
+    reports_position: bool = False
+    device_class: ValveDeviceClass | None = None
+    supported_features: ValveEntityFeature | None = None
+    state: ValveState | None = None
+
+
+class ValveEntity(HAEntity):
+    domain: Platform.VALVE
+    attributes: ValveAttributes
+    state: ValveState | Any
+
+
+# Wake words
+class WakeWord(BaseModel):
+    id: str | None = None
+    name: str | None = None
+    phrase: str | None = None
+
+
+class WakeWordAttributes(BaseAttributes):
+    supported_wake_words: list[WakeWord] = []
+
+
+class WakeWordEntity(HAEntity):
+    domain: Platform.WAKE_WORD
+    attributes: WakeWordAttributes
+
+
+# Water heater
+class WaterHeaterEntityFeature(IntFlag):
+    TARGET_TEMPERATURE = 1
+    OPERATION_MODE = 2
+    AWAY_MODE = 4
+    ON_OFF = 8
+
+
+class WaterHeaterStates(StrEnum):
+    ECO = "eco"
+    ELECTRIC = "electric"
+    PERFORMANCE = "performance"
+    HIGH_DEMAND = "high_demand"
+    HEAT_PUMP = "heat_pump"
+    GAS = "gas"
+    OFF = "off"
+
+
+class WaterHeaterAttributes(BaseAttributes):
+    min_temp: float = 110
+    max_temp: float = 140
+    current_temperature: float | None = None
+    target_temperature: float | None = None
+    target_temperature_high: float | None = None
+    target_temperature_low: float | None = None
+    temperature_unit: str | UnitOfTemperature | None = None
+    current_operation: str | None = None
+    operation_list: list[str] | None = None
+    supported_features: WaterHeaterEntityFeature | None = None
+    is_away_mode_on: bool | None = None
+    state: WaterHeaterStates | Any = None
+
+
+class WaterHeaterEntity(HAEntity):
+    domain: Platform.WATER_HEATER
+    attributes: WaterHeaterAttributes
+    state: WaterHeaterStates | Any
+
+
+# Weather
+class WeatherEntityFeature(IntFlag):
+    """Supported features of the update entity."""
+
+    FORECAST_DAILY = 1
+    FORECAST_HOURLY = 2
+    FORECAST_TWICE_DAILY = 4
+
+
+class WeatherForecast(BaseModel):
+    condition: str | None
+    datetime: str | None = None
+    humidity: float | None
+    precipitation_probability: int | None
+    cloud_coverage: int | None
+    native_precipitation: float | None
+    precipitation: float | None
+    native_pressure: float | None
+    pressure: float | None
+    native_temperature: float | None
+    temperature: float | None
+    native_templow: float | None
+    templow: float | None
+    native_apparent_temperature: float | None
+    wind_bearing: float | str | None
+    native_wind_gust_speed: float | None
+    native_wind_speed: float | None
+    wind_speed: float | None
+    native_dew_point: float | None
+    uv_index: float | None
+    is_daytime: bool | None
+
+
+class WeatherAttributes(BaseAttributes):
+    condition: str | None
+    datetime: str | None = None
+    humidity: float | None
+    precipitation_probability: int | None
+    cloud_coverage: int | None
+    native_precipitation: float | None
+    precipitation: float | None
+    native_pressure: float | None
+    pressure: float | None
+    native_temperature: float | None
+    temperature: float | None
+    native_templow: float | None
+    templow: float | None
+    native_apparent_temperature: float | None
+    wind_bearing: float | str | None
+    native_wind_gust_speed: float | None
+    native_wind_speed: float | None
+    wind_speed: float | None
+    native_dew_point: float | None
+    uv_index: float | None
+    is_daytime: bool | None
+    ozone: float | None = None
+    forecast: list[WeatherForecast] | None = None
+
+
+class WeatherEntity(HAEntity):
+    domain: Platform.WEATHER
+    attributes: WeatherAttributes
