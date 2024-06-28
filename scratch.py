@@ -12,8 +12,8 @@ async def main():
         os.environ["HASS_API"], os.environ["HASS_TOKEN"]
     ) as client:
         print(client.hass_version)
-        result = await client.send_ws_command("get_states", _type=dict)
-        print(result)
+        async for event in client.subscribe_events():
+            print(event)
 
 
 asyncio.run(main())

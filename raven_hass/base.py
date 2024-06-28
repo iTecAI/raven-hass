@@ -1,13 +1,12 @@
 from asyncio import Event, Queue, Task, create_task
-from contextlib import asynccontextmanager, contextmanager
+from contextlib import contextmanager
 import json
-from traceback import print_exc
 from typing import Any, AsyncGenerator, Generator, Type, TypeVar
 from urllib.parse import urlparse
 from uuid import uuid4
 from httpx import AsyncClient
 from websockets import ConnectionClosed, WebSocketClientProtocol, connect
-from .models import WS_MESSAGE_TYPES, WSMessage, WSResult
+from .models import WS_MESSAGE_TYPES, WSMessage, WSResult, WSEvent
 from pydantic import BaseModel
 
 TMessage = TypeVar("TMessage", bound=WSMessage)
@@ -132,10 +131,26 @@ class BaseApi:
         TResult
     ](self, type: str, _type: Type[TResult] = None, **kwargs) -> WSResult[TResult]:
         with self.messages("result", _type=WSResult) as results:
-            msg_id = await self.send_ws(type, **kwargs)
+            msg_id = await self.send_ws(
+                type, **{k: v for k, v in kwargs.items() if v != None}
+            )
             async for message in results:
                 if message.id == msg_id:
                     return message
 
     async def subscribe_events(self, event: str | None = None):
-        pass
+        subscribe_result = await self.send_ws_command(
+            "subscribe_events", event_type=event
+        )
+        if subscribe_result.success:
+            try:
+                with self.messages("event", _type=WSEvent) as messages:
+                    async for ev in messages:
+                        if ev.id == subscribe_result.id:
+                            yield ev
+            finally:
+                await self.send_ws(
+                    "unsubscribe_events", subscription=subscribe_result.id
+                )
+        else:
+            raise RuntimeError("Failed to subscribe.")

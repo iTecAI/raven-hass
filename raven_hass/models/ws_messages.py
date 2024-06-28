@@ -29,9 +29,15 @@ class WSResult[T](WSMessage):
     error: Any | None = None
 
 
+class WSEvent(WSMessage):
+    type: Literal["event"]
+    event: Any
+
+
 WS_MESSAGE_TYPES: dict[str, Type[WSMessage]] = {
     "auth_required": WSAuthRequired,
     "auth_ok": WSAuthResult,
     "auth_invalid": WSAuthResult,
     "result": WSResult,
+    "event": WSEvent,
 }
