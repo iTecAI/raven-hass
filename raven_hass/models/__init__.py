@@ -1,7 +1,7 @@
 from .ws_messages import *
 from .entities import *
 
-ENTITY_MODELS: dict[Platform, HAEntity] = {
+ENTITY_MODELS: dict[Platform | str, HAEntity] = {
     Platform.ALARM_CONTROL_PANEL: AlarmControlPanelEntity,
     Platform.BINARY_SENSOR: BinarySensorEntity,
     Platform.BUTTON: ButtonEntity,
@@ -40,4 +40,10 @@ ENTITY_MODELS: dict[Platform, HAEntity] = {
     Platform.WAKE_WORD: WakeWordEntity,
     Platform.WATER_HEATER: WaterHeaterEntity,
     Platform.WEATHER: WeatherEntity,
+    "input_text": TextEntity,
+    "input_number": NumberEntity,
+    "input_datetime": DateTimeEntity,
+    "input_button": ButtonEntity,
+    "input_boolean": SwitchEntity,
+    "input_select": SelectEntity,
 }

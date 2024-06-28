@@ -111,6 +111,9 @@ class HAEntity(BaseModel):
     context: HAContext
     attributes: BaseAttributes
 
+    def is_domain(self, domain: str) -> bool:
+        return domain == self.domain
+
     @model_validator(mode="before")
     @classmethod
     def expand_id(cls, data: Any) -> Any:
@@ -231,6 +234,9 @@ class ButtonAttributes(BaseAttributes):
 class ButtonEntity(HAEntity):
     domain: Platform.BUTTON
     attributes: ButtonAttributes
+
+    def is_domain(self, domain: str) -> bool:
+        return domain in [Platform.BUTTON, "input_button"]
 
 
 # Calendar
@@ -437,6 +443,9 @@ class DateTimeAttributes(BaseAttributes):
 class DateTimeEntity(HAEntity):
     domain: Platform.DATETIME
     attributes: DateAttributes
+
+    def is_domain(self, domain: str) -> bool:
+        return domain in [Platform.DATETIME, "input_datetime"]
 
 
 # Device trackers
@@ -1191,6 +1200,9 @@ class NumberEntity(HAEntity):
     domain: Platform.NUMBER
     attributes: NumberAttributes
 
+    def is_domain(self, domain: str) -> bool:
+        return domain in [Platform.NUMBER, "input_number"]
+
 
 # Remote
 
@@ -1232,6 +1244,9 @@ class SelectAttributes(BaseAttributes):
 class SelectEntity(HAEntity):
     domain: Platform.SELECT
     attributes: SelectAttributes
+
+    def is_domain(self, domain: str) -> bool:
+        return domain in [Platform.SELECT, "input_select"]
 
 
 # Sensor
@@ -1360,6 +1375,9 @@ class SwitchEntity(HAEntity):
     domain: Platform.SWITCH
     attributes: SwitchAttributes
 
+    def is_domain(self, domain: str) -> bool:
+        return domain in [Platform.SWITCH, "input_boolean"]
+
 
 # Text
 
@@ -1380,6 +1398,9 @@ class TextAttributes(BaseAttributes):
 class TextEntity(HAEntity):
     domain: Platform.TEXT
     attributes: TextAttributes
+
+    def is_domain(self, domain: str) -> bool:
+        return domain in [Platform.TEXT, "input_text"]
 
 
 # Time
