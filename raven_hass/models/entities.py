@@ -2,7 +2,9 @@ from datetime import date, datetime, time
 from enum import IntEnum, IntFlag, StrEnum
 from typing import Any, Literal
 from pydantic import BaseModel, computed_field, model_validator
+from .util import Registry
 
+REGISTRY = Registry()
 
 class Platform(StrEnum):
 
@@ -169,6 +171,7 @@ class AlarmControlPanelAttributes(BaseAttributes):
     supported_features: AlarmControlPanelEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.ALARM_CONTROL_PANEL)
 class AlarmControlPanelEntity(HAEntity):
     domain: Platform.ALARM_CONTROL_PANEL
     attributes: AlarmControlPanelAttributes
@@ -213,6 +216,7 @@ class BinarySensorAttributes(BaseAttributes):
     device_class: BinarySensorDeviceClass | None = None
 
 
+@REGISTRY.register(Platform.BINARY_SENSOR)
 class BinarySensorEntity(HAEntity):
     domain: Platform.BINARY_SENSOR
     attributes: BinarySensorAttributes
@@ -231,6 +235,7 @@ class ButtonAttributes(BaseAttributes):
     device_class: ButtonDeviceClass | None = None
 
 
+@REGISTRY.register(Platform.BUTTON, "input_button")
 class ButtonEntity(HAEntity):
     domain: Platform.BUTTON
     attributes: ButtonAttributes
@@ -264,6 +269,7 @@ class CalendarAttributes(BaseAttributes):
     event: CalendarEvent | None = None
 
 
+@REGISTRY.register(Platform.CALENDAR)
 class CalendarEntity(HAEntity):
     domain: Platform.CALENDAR
     state: BinaryState | None
@@ -296,6 +302,7 @@ class CameraAttributes(BaseAttributes):
     use_stream_for_stills: bool = False
 
 
+@REGISTRY.register(Platform.CAMERA)
 class CameraEntity(HAEntity):
     domain: Platform.CAMERA
     attributes: CameraAttributes
@@ -362,6 +369,7 @@ class ClimateAttributes(BaseAttributes):
     supported_features: ClimateEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.CLIMATE)
 class ClimateEntity(HAEntity):
     domain: Platform.CLIMATE
     attributes: ClimateAttributes
@@ -374,6 +382,7 @@ class ConversationAttributes(BaseAttributes):
     supported_languages: list[str] | Literal["*"]
 
 
+@REGISTRY.register(Platform.CONVERSATION)
 class ConversationEntity(HAEntity):
     domain: Platform.CONVERSATION
     attributes: ConversationAttributes
@@ -416,6 +425,7 @@ class CoverAttributes(BaseAttributes):
     supported_features: CoverEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.COVER)
 class CoverEntity(HAEntity):
     domain: Platform.COVER
     attributes: CoverAttributes
@@ -428,6 +438,7 @@ class DateAttributes(BaseAttributes):
     native_value: date | None = None
 
 
+@REGISTRY.register(Platform.DATE)
 class DateEntity(HAEntity):
     domain: Platform.DATE
     attributes: DateAttributes
@@ -440,6 +451,7 @@ class DateTimeAttributes(BaseAttributes):
     native_value: datetime | None = None
 
 
+@REGISTRY.register(Platform.DATETIME, "input_datetime")
 class DateTimeEntity(HAEntity):
     domain: Platform.DATETIME
     attributes: DateAttributes
@@ -476,6 +488,7 @@ class TrackerAttributes(BaseAttributes):
     source_type: SourceType | None = None
 
 
+@REGISTRY.register(Platform.DEVICE_TRACKER)
 class DeviceTrackerEntity(HAEntity):
     domain: Platform.DEVICE_TRACKER
     attributes: ScannerAttributes | TrackerAttributes
@@ -502,6 +515,7 @@ class EventAttributes(BaseAttributes):
     device_class: EventDeviceClass | None = None
 
 
+@REGISTRY.register(Platform.EVENT)
 class EventEntity(HAEntity):
     domain: Platform.EVENT
     attributes: EventAttributes
@@ -528,6 +542,7 @@ class FanAttributes(BaseAttributes):
     supported_features: FanEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.FAN)
 class FanEntity(HAEntity):
     domain: Platform.FAN
     attributes: FanAttributes
@@ -565,6 +580,7 @@ class HumidifierAttributes(BaseAttributes):
     supported_features: HumidifierEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.HUMIDIFIER)
 class HumidifierEntity(HAEntity):
     domain: Platform.HUMIDIFIER
     attributes: HumidifierAttributes
@@ -579,6 +595,7 @@ class ImageAttributes(BaseAttributes):
     image_url: str | None = None
 
 
+@REGISTRY.register(Platform.IMAGE)
 class ImageEntity(HAEntity):
     domain: Platform.IMAGE
     attributes: ImageAttributes
@@ -605,6 +622,7 @@ class LawnMowerAttributes(BaseAttributes):
     supported_features: LawnMowerEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.LAWN_MOWER)
 class LawnMowerEntity(HAEntity):
     domain: Platform.LAWN_MOWER
     attributes: LawnMowerAttributes
@@ -650,6 +668,7 @@ class LightAttributes(BaseAttributes):
     supported_features: LightEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.LIGHT)
 class LightEntity(HAEntity):
     domain: Platform.LIGHT
     attributes: LightAttributes
@@ -674,6 +693,7 @@ class LockAttributes(BaseAttributes):
     supported_features: LockFeatures | None = None
 
 
+@REGISTRY.register(Platform.LOCK)
 class LockEntity(HAEntity):
     domain: Platform.LOCK
     attributes: LockAttributes
@@ -824,12 +844,14 @@ class MediaPlayerAttributes(BaseAttributes):
     supported_features: MediaPlayerEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.MEDIA_PLAYER)
 class MediaPlayerEntity(HAEntity):
     domain: Platform.MEDIA_PLAYER
     attributes: MediaPlayerAttributes
 
 
 # Notify
+@REGISTRY.register(Platform.NOTIFY)
 class NotifyEntity(HAEntity):
     domain: Platform.NOTIFY
 
@@ -1196,6 +1218,7 @@ class NumberAttributes(BaseAttributes):
     native_unit_of_measurement: str | None = None
 
 
+@REGISTRY.register(Platform.NUMBER, "input_number")
 class NumberEntity(HAEntity):
     domain: Platform.NUMBER
     attributes: NumberAttributes
@@ -1221,6 +1244,7 @@ class RemoteAttributes(BaseAttributes):
     activity_list: list[str] | None = None
 
 
+@REGISTRY.register(Platform.REMOTE)
 class RemoteEntity(HAEntity):
     domain: Platform.REMOTE
     attributes: RemoteAttributes
@@ -1229,6 +1253,7 @@ class RemoteEntity(HAEntity):
 # Scene
 
 
+@REGISTRY.register(Platform.SCENE)
 class SceneEntity(HAEntity):
     domain: Platform.SCENE
 
@@ -1241,6 +1266,7 @@ class SelectAttributes(BaseAttributes):
     options: list[str] = []
 
 
+@REGISTRY.register(Platform.SELECT, "input_select")
 class SelectEntity(HAEntity):
     domain: Platform.SELECT
     attributes: SelectAttributes
@@ -1267,6 +1293,7 @@ class SensorAttributes(BaseAttributes):
     suggested_unit_of_measurement: str | None = None
 
 
+@REGISTRY.register(Platform.SENSOR)
 class SensorEntity(HAEntity):
     domain: Platform.SENSOR
     attributes: SensorAttributes
@@ -1289,6 +1316,7 @@ class SirenAttributes(BaseAttributes):
     supported_features: SirenEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.SIREN)
 class SirenEntity(HAEntity):
     domain: Platform.SIREN
     attributes: SirenAttributes
@@ -1355,6 +1383,7 @@ class STTAttributes(BaseAttributes):
     supported_channels: list[AudioChannels]
 
 
+@REGISTRY.register(Platform.STT)
 class STTEntity(HAEntity):
     domain: Platform.STT
     attributes: STTAttributes
@@ -1371,6 +1400,7 @@ class SwitchAttributes(BaseAttributes):
     device_class: SwitchDeviceClass | None = None
 
 
+@REGISTRY.register(Platform.SWITCH, "input_boolean")
 class SwitchEntity(HAEntity):
     domain: Platform.SWITCH
     attributes: SwitchAttributes
@@ -1395,6 +1425,7 @@ class TextAttributes(BaseAttributes):
     native_value: str = ""
 
 
+@REGISTRY.register(Platform.TEXT, "input_text")
 class TextEntity(HAEntity):
     domain: Platform.TEXT
     attributes: TextAttributes
@@ -1408,6 +1439,7 @@ class TimeAttributes(BaseAttributes):
     native_value: time | None = None
 
 
+@REGISTRY.register(Platform.TIME)
 class TimeEntity(HAEntity):
     domain: Platform.TIME
     attributes: TimeAttributes
@@ -1449,6 +1481,7 @@ class TodoListAttributes(BaseAttributes):
     supported_features: TodoListEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.TODO)
 class TodoListEntity(HAEntity):
     domain: Platform.TODO
     attributes: TodoListAttributes
@@ -1464,6 +1497,7 @@ class TTSAttributes(BaseAttributes):
     default_options: dict[str, Any] | None = None
 
 
+@REGISTRY.register(Platform.TTS)
 class TTSEntity(HAEntity):
     domain: Platform.TTS
     attributes: TTSAttributes
@@ -1498,6 +1532,7 @@ class UpdateAttributes(BaseAttributes):
     device_class: UpdateDeviceClass | None = None
 
 
+@REGISTRY.register(Platform.UPDATE)
 class UpdateEntity(HAEntity):
     domain: Platform.UPDATE
     attributes: UpdateAttributes
@@ -1540,6 +1575,7 @@ class VacuumAttributes(BaseAttributes):
     supported_features: VacuumEntityFeature | None = None
 
 
+@REGISTRY.register(Platform.VACUUM)
 class VacuumEntity(HAEntity):
     domain: Platform.VACUUM
     attributes: VacuumAttributes
@@ -1583,6 +1619,7 @@ class ValveAttributes(BaseAttributes):
     state: ValveState | None = None
 
 
+@REGISTRY.register(Platform.VALVE)
 class ValveEntity(HAEntity):
     domain: Platform.VALVE
     attributes: ValveAttributes
@@ -1600,6 +1637,7 @@ class WakeWordAttributes(BaseAttributes):
     supported_wake_words: list[WakeWord] = []
 
 
+@REGISTRY.register(Platform.WAKE_WORD)
 class WakeWordEntity(HAEntity):
     domain: Platform.WAKE_WORD
     attributes: WakeWordAttributes
@@ -1638,6 +1676,7 @@ class WaterHeaterAttributes(BaseAttributes):
     state: WaterHeaterStates | Any = None
 
 
+@REGISTRY.register(Platform.WATER_HEATER)
 class WaterHeaterEntity(HAEntity):
     domain: Platform.WATER_HEATER
     attributes: WaterHeaterAttributes
@@ -1703,6 +1742,7 @@ class WeatherAttributes(BaseAttributes):
     forecast: list[WeatherForecast] | None = None
 
 
+@REGISTRY.register(Platform.WEATHER)
 class WeatherEntity(HAEntity):
     domain: Platform.WEATHER
     attributes: WeatherAttributes
