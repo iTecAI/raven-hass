@@ -1,3 +1,4 @@
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,10 +13,15 @@ async def main():
         os.environ["HASS_API"], os.environ["HASS_TOKEN"]
     ) as client:
         print(client.hass_version)
-        with open("services.json", "w") as f:
+        with open("services.test.json", "w") as f:
             print(
-                (await client.send_ws_command("get_services")).model_dump_json(
-                    indent=4
+                json.dumps(
+                    [
+                        [i for i in j.values()]
+                        for j in (await client.send_ws_command("get_services"))
+                        .model_dump(mode="json")["result"]
+                        .values()
+                    ]
                 ),
                 file=f,
             )
