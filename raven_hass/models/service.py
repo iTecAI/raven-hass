@@ -1,6 +1,6 @@
 from enum import StrEnum
 from typing import Any, Literal
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 from .util import Registry
 
 
@@ -253,7 +253,7 @@ class SelectOption(BaseModel):
 @REGISTRY.register("select")
 class SelectSelector(BaseModel):
     selector_type: Literal["select"]
-    options: list[SelectOption]
+    options: list[SelectOption] = []
     multiple: bool = False
     custom_value: bool = False
     mode: Literal["list", "dropdown"] | None = None
@@ -335,20 +335,23 @@ SelectorTypes = (
     | ConditionSelector
     | ConstantSelector
     | AssistPipelineSelector
+    | BackupLocationSelector
+    | ConfigEntrySelector
+    | ConversationAgentSelector
 )
 
 
 class ServiceField(BaseModel):
     id: str
-    name: str
+    name: str | None = None
     description: str | None = None
     advanced: bool = False
     required: bool = False
-    example: str | None = None
+    example: Any | None = None
     filter: dict | None = None
-    selector: SelectorTypes | None = None
+    selector: SelectorTypes | None = Field(default=None, discriminator="selector_type")
 
-    @field_validator("selector")
+    @field_validator("selector", mode="before")
     @classmethod
     def transform_selector(cls, v: any) -> SelectorTypes | None:
         if isinstance(v, dict):
@@ -359,6 +362,7 @@ class ServiceField(BaseModel):
                 return None
             if len(v.keys()) > 0:
                 key = list(v.keys())[0]
+
                 constructor = REGISTRY[key]
                 if constructor:
                     return constructor(selector_type=key, **v)
@@ -373,3 +377,26 @@ class Service(BaseModel):
     description: str | None = None
     target: dict[str, Any] = {}
     fields: dict[str, ServiceField] = {}
+
+    @field_validator("fields", mode="before")
+    @classmethod
+    def give_fields_ids(cls, v: Any) -> dict[str, ServiceField]:
+        if isinstance(v, dict):
+            resolved = {}
+            for key, val in v.items():
+                if isinstance(val, ServiceField):
+                    resolved[key] = val
+                elif val == None:
+                    resolved[key] = ServiceField(id=key)
+                elif isinstance(val, dict):
+                    resolved[key] = ServiceField(id=key, **val)
+            return resolved
+        return v
+
+    @classmethod
+    def from_services(cls, services: dict[str, dict[str, Any]]) -> list["Service"]:
+        results = []
+        for domain, domain_services in services.items():
+            for service_name, service in domain_services.items():
+                results.append(Service(domain=domain, service=service_name, **service))
+        return results
