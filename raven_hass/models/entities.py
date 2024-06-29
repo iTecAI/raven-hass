@@ -151,15 +151,20 @@ class HAEntity(RegisteredModel):
         return None
 
     async def call_service(
-        self, service: Service, data: dict | None = None
+        self, service: Service | str, data: dict | None = None
     ) -> WSResult:
+        if isinstance(service, Service):
+            domain = service.domain
+            svc = service.service
+        else:
+            domain, svc = service.split(".", maxsplit=1)
+
         return await self.client.send_ws_command(
             "call_service",
-            domain=service.domain,
-            service=service.service,
+            domain=domain,
+            service=svc,
             service_data=data,
             target={"entity_id": self.entity_id},
-            return_response=False,
         )
 
 
