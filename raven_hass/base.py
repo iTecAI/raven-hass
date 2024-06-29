@@ -14,6 +14,7 @@ from .models import (
     ENTITY_MODELS,
     SERVICE_MODELS,
     Service,
+    HAEntity,
 )
 from pydantic import BaseModel
 
@@ -166,3 +167,17 @@ class BaseApi:
                 )
         else:
             raise RuntimeError("Failed to subscribe.")
+
+    async def get_services(self) -> list[Service]:
+        result = await self.send_ws_command(
+            "get_services", _type=dict[str, dict[str, Any]]
+        )
+        if result.success:
+            return Service.from_services(result.result)
+        return []
+
+    async def get_entities(self) -> list[HAEntity]:
+        result = await self.send_ws_command("get_states", _type=list[dict])
+        if result.success:
+            return [HAEntity.resolve_entity(entity) for entity in result.result]
+        return []

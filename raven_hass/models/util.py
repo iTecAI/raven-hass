@@ -35,6 +35,7 @@ class Registry:
         def register_inner(original_class: Any):
             for key in keys:
                 original_class.set_registry(self)
+                original_class.model_rebuild()
                 self.registry[key] = original_class
             return original_class
 

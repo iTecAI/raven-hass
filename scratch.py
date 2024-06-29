@@ -12,11 +12,7 @@ async def main():
     async with RavenHassClient(
         os.environ["HASS_API"], os.environ["HASS_TOKEN"]
     ) as client:
-        print(client.hass_version)
-        result = await client.send_ws_command("get_services")
-        for svc in Service.from_services(result.result):
-            for field in svc.fields.values():
-                print(field.selector.client)
+        print(await client.get_services())
 
 
 asyncio.run(main())

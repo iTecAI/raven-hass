@@ -3,6 +3,8 @@ from enum import IntEnum, IntFlag, StrEnum
 from typing import Any, ClassVar, Literal
 from pydantic import BaseModel, computed_field, model_validator
 from .util import Registry, RegisteredModel
+from .service import Service
+from .ws_messages import WSResult
 
 REGISTRY = Registry()
 
@@ -103,9 +105,10 @@ class BaseAttributes(BaseModel):
     enabled: bool = True
 
 
+@REGISTRY.register("entity_base")
 class HAEntity(RegisteredModel):
     entity_id: str
-    domain: Platform
+    domain: str
     name: str
     state: str | int | float | bool | None
     last_changed: datetime
@@ -132,6 +135,32 @@ class HAEntity(RegisteredModel):
             _data["name"] = parts[1]
 
         return _data
+
+    @classmethod
+    def resolve_entity(cls, data: dict) -> "HAEntity | None":
+        if "entity_id" in data.keys():
+            domain = data["entity_id"].split(".")[0]
+            constructor = REGISTRY[domain]
+            if constructor:
+                return constructor(**data)
+
+            try:
+                return HAEntity(**data)
+            except:
+                pass
+        return None
+
+    async def call_service(
+        self, service: Service, data: dict | None = None
+    ) -> WSResult:
+        return await self.client.send_ws_command(
+            "call_service",
+            domain=service.domain,
+            service=service.service,
+            service_data=data,
+            target={"entity_id": self.entity_id},
+            return_response=False,
+        )
 
 
 # Alarm control panel
@@ -173,7 +202,7 @@ class AlarmControlPanelAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.ALARM_CONTROL_PANEL)
 class AlarmControlPanelEntity(HAEntity):
-    domain: Platform.ALARM_CONTROL_PANEL
+    domain: Literal[Platform.ALARM_CONTROL_PANEL]
     attributes: AlarmControlPanelAttributes
 
 
@@ -218,7 +247,7 @@ class BinarySensorAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.BINARY_SENSOR)
 class BinarySensorEntity(HAEntity):
-    domain: Platform.BINARY_SENSOR
+    domain: Literal[Platform.BINARY_SENSOR]
     attributes: BinarySensorAttributes
 
 
@@ -237,7 +266,7 @@ class ButtonAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.BUTTON, "input_button")
 class ButtonEntity(HAEntity):
-    domain: Platform.BUTTON
+    domain: Literal[Platform.BUTTON]
     attributes: ButtonAttributes
 
     def is_domain(self, domain: str) -> bool:
@@ -271,7 +300,7 @@ class CalendarAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.CALENDAR)
 class CalendarEntity(HAEntity):
-    domain: Platform.CALENDAR
+    domain: Literal[Platform.CALENDAR]
     state: BinaryState | None
     attributes: CalendarAttributes
 
@@ -304,7 +333,7 @@ class CameraAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.CAMERA)
 class CameraEntity(HAEntity):
-    domain: Platform.CAMERA
+    domain: Literal[Platform.CAMERA]
     attributes: CameraAttributes
 
 
@@ -371,7 +400,7 @@ class ClimateAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.CLIMATE)
 class ClimateEntity(HAEntity):
-    domain: Platform.CLIMATE
+    domain: Literal[Platform.CLIMATE]
     attributes: ClimateAttributes
 
 
@@ -384,7 +413,7 @@ class ConversationAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.CONVERSATION)
 class ConversationEntity(HAEntity):
-    domain: Platform.CONVERSATION
+    domain: Literal[Platform.CONVERSATION]
     attributes: ConversationAttributes
 
 
@@ -427,7 +456,7 @@ class CoverAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.COVER)
 class CoverEntity(HAEntity):
-    domain: Platform.COVER
+    domain: Literal[Platform.COVER]
     attributes: CoverAttributes
 
 
@@ -440,7 +469,7 @@ class DateAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.DATE)
 class DateEntity(HAEntity):
-    domain: Platform.DATE
+    domain: Literal[Platform.DATE]
     attributes: DateAttributes
 
 
@@ -453,7 +482,7 @@ class DateTimeAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.DATETIME, "input_datetime")
 class DateTimeEntity(HAEntity):
-    domain: Platform.DATETIME
+    domain: Literal[Platform.DATETIME]
     attributes: DateAttributes
 
     def is_domain(self, domain: str) -> bool:
@@ -490,7 +519,7 @@ class TrackerAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.DEVICE_TRACKER)
 class DeviceTrackerEntity(HAEntity):
-    domain: Platform.DEVICE_TRACKER
+    domain: Literal[Platform.DEVICE_TRACKER]
     attributes: ScannerAttributes | TrackerAttributes
 
     @computed_field
@@ -517,7 +546,7 @@ class EventAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.EVENT)
 class EventEntity(HAEntity):
-    domain: Platform.EVENT
+    domain: Literal[Platform.EVENT]
     attributes: EventAttributes
 
 
@@ -544,7 +573,7 @@ class FanAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.FAN)
 class FanEntity(HAEntity):
-    domain: Platform.FAN
+    domain: Literal[Platform.FAN]
     attributes: FanAttributes
 
 
@@ -582,7 +611,7 @@ class HumidifierAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.HUMIDIFIER)
 class HumidifierEntity(HAEntity):
-    domain: Platform.HUMIDIFIER
+    domain: Literal[Platform.HUMIDIFIER]
     attributes: HumidifierAttributes
 
 
@@ -597,7 +626,7 @@ class ImageAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.IMAGE)
 class ImageEntity(HAEntity):
-    domain: Platform.IMAGE
+    domain: Literal[Platform.IMAGE]
     attributes: ImageAttributes
 
 
@@ -624,7 +653,7 @@ class LawnMowerAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.LAWN_MOWER)
 class LawnMowerEntity(HAEntity):
-    domain: Platform.LAWN_MOWER
+    domain: Literal[Platform.LAWN_MOWER]
     attributes: LawnMowerAttributes
 
 
@@ -670,7 +699,7 @@ class LightAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.LIGHT)
 class LightEntity(HAEntity):
-    domain: Platform.LIGHT
+    domain: Literal[Platform.LIGHT]
     attributes: LightAttributes
 
 
@@ -695,7 +724,7 @@ class LockAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.LOCK)
 class LockEntity(HAEntity):
-    domain: Platform.LOCK
+    domain: Literal[Platform.LOCK]
     attributes: LockAttributes
 
 
@@ -846,14 +875,14 @@ class MediaPlayerAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.MEDIA_PLAYER)
 class MediaPlayerEntity(HAEntity):
-    domain: Platform.MEDIA_PLAYER
+    domain: Literal[Platform.MEDIA_PLAYER]
     attributes: MediaPlayerAttributes
 
 
 # Notify
 @REGISTRY.register(Platform.NOTIFY)
 class NotifyEntity(HAEntity):
-    domain: Platform.NOTIFY
+    domain: Literal[Platform.NOTIFY]
 
 
 # Number
@@ -1220,7 +1249,7 @@ class NumberAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.NUMBER, "input_number")
 class NumberEntity(HAEntity):
-    domain: Platform.NUMBER
+    domain: Literal[Platform.NUMBER]
     attributes: NumberAttributes
 
     def is_domain(self, domain: str) -> bool:
@@ -1246,7 +1275,7 @@ class RemoteAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.REMOTE)
 class RemoteEntity(HAEntity):
-    domain: Platform.REMOTE
+    domain: Literal[Platform.REMOTE]
     attributes: RemoteAttributes
 
 
@@ -1255,7 +1284,7 @@ class RemoteEntity(HAEntity):
 
 @REGISTRY.register(Platform.SCENE)
 class SceneEntity(HAEntity):
-    domain: Platform.SCENE
+    domain: Literal[Platform.SCENE]
 
 
 # Select
@@ -1268,7 +1297,7 @@ class SelectAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.SELECT, "input_select")
 class SelectEntity(HAEntity):
-    domain: Platform.SELECT
+    domain: Literal[Platform.SELECT]
     attributes: SelectAttributes
 
     def is_domain(self, domain: str) -> bool:
@@ -1295,7 +1324,7 @@ class SensorAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.SENSOR)
 class SensorEntity(HAEntity):
-    domain: Platform.SENSOR
+    domain: Literal[Platform.SENSOR]
     attributes: SensorAttributes
 
 
@@ -1318,7 +1347,7 @@ class SirenAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.SIREN)
 class SirenEntity(HAEntity):
-    domain: Platform.SIREN
+    domain: Literal[Platform.SIREN]
     attributes: SirenAttributes
 
 
@@ -1385,7 +1414,7 @@ class STTAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.STT)
 class STTEntity(HAEntity):
-    domain: Platform.STT
+    domain: Literal[Platform.STT]
     attributes: STTAttributes
 
 
@@ -1402,7 +1431,7 @@ class SwitchAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.SWITCH, "input_boolean")
 class SwitchEntity(HAEntity):
-    domain: Platform.SWITCH
+    domain: Literal[Platform.SWITCH]
     attributes: SwitchAttributes
 
     def is_domain(self, domain: str) -> bool:
@@ -1427,7 +1456,7 @@ class TextAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.TEXT, "input_text")
 class TextEntity(HAEntity):
-    domain: Platform.TEXT
+    domain: Literal[Platform.TEXT]
     attributes: TextAttributes
 
     def is_domain(self, domain: str) -> bool:
@@ -1441,7 +1470,7 @@ class TimeAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.TIME)
 class TimeEntity(HAEntity):
-    domain: Platform.TIME
+    domain: Literal[Platform.TIME]
     attributes: TimeAttributes
 
 
@@ -1483,7 +1512,7 @@ class TodoListAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.TODO)
 class TodoListEntity(HAEntity):
-    domain: Platform.TODO
+    domain: Literal[Platform.TODO]
     attributes: TodoListAttributes
 
 
@@ -1499,7 +1528,7 @@ class TTSAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.TTS)
 class TTSEntity(HAEntity):
-    domain: Platform.TTS
+    domain: Literal[Platform.TTS]
     attributes: TTSAttributes
 
 
@@ -1534,7 +1563,7 @@ class UpdateAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.UPDATE)
 class UpdateEntity(HAEntity):
-    domain: Platform.UPDATE
+    domain: Literal[Platform.UPDATE]
     attributes: UpdateAttributes
 
 
@@ -1577,7 +1606,7 @@ class VacuumAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.VACUUM)
 class VacuumEntity(HAEntity):
-    domain: Platform.VACUUM
+    domain: Literal[Platform.VACUUM]
     attributes: VacuumAttributes
     state: VacuumEntityState | Any
 
@@ -1621,7 +1650,7 @@ class ValveAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.VALVE)
 class ValveEntity(HAEntity):
-    domain: Platform.VALVE
+    domain: Literal[Platform.VALVE]
     attributes: ValveAttributes
     state: ValveState | Any
 
@@ -1639,7 +1668,7 @@ class WakeWordAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.WAKE_WORD)
 class WakeWordEntity(HAEntity):
-    domain: Platform.WAKE_WORD
+    domain: Literal[Platform.WAKE_WORD]
     attributes: WakeWordAttributes
 
 
@@ -1678,7 +1707,7 @@ class WaterHeaterAttributes(BaseAttributes):
 
 @REGISTRY.register(Platform.WATER_HEATER)
 class WaterHeaterEntity(HAEntity):
-    domain: Platform.WATER_HEATER
+    domain: Literal[Platform.WATER_HEATER]
     attributes: WaterHeaterAttributes
     state: WaterHeaterStates | Any
 
@@ -1693,56 +1722,56 @@ class WeatherEntityFeature(IntFlag):
 
 
 class WeatherForecast(BaseModel):
-    condition: str | None
+    condition: str | None = None
     datetime: str | None = None
-    humidity: float | None
-    precipitation_probability: int | None
-    cloud_coverage: int | None
-    native_precipitation: float | None
-    precipitation: float | None
-    native_pressure: float | None
-    pressure: float | None
-    native_temperature: float | None
-    temperature: float | None
-    native_templow: float | None
-    templow: float | None
-    native_apparent_temperature: float | None
-    wind_bearing: float | str | None
-    native_wind_gust_speed: float | None
-    native_wind_speed: float | None
-    wind_speed: float | None
-    native_dew_point: float | None
-    uv_index: float | None
-    is_daytime: bool | None
+    humidity: float | None = None
+    precipitation_probability: int | None = None
+    cloud_coverage: int | None = None
+    native_precipitation: float | None = None
+    precipitation: float | None = None
+    native_pressure: float | None = None
+    pressure: float | None = None
+    native_temperature: float | None = None
+    temperature: float | None = None
+    native_templow: float | None = None
+    templow: float | None = None
+    native_apparent_temperature: float | None = None
+    wind_bearing: float | str | None = None
+    native_wind_gust_speed: float | None = None
+    native_wind_speed: float | None = None
+    wind_speed: float | None = None
+    native_dew_point: float | None = None
+    uv_index: float | None = None
+    is_daytime: bool | None = None
 
 
 class WeatherAttributes(BaseAttributes):
-    condition: str | None
+    condition: str | None = None
     datetime: str | None = None
-    humidity: float | None
-    precipitation_probability: int | None
-    cloud_coverage: int | None
-    native_precipitation: float | None
-    precipitation: float | None
-    native_pressure: float | None
-    pressure: float | None
-    native_temperature: float | None
-    temperature: float | None
-    native_templow: float | None
-    templow: float | None
-    native_apparent_temperature: float | None
-    wind_bearing: float | str | None
-    native_wind_gust_speed: float | None
-    native_wind_speed: float | None
-    wind_speed: float | None
-    native_dew_point: float | None
-    uv_index: float | None
-    is_daytime: bool | None
+    humidity: float | None = None
+    precipitation_probability: int | None = None
+    cloud_coverage: int | None = None
+    native_precipitation: float | None = None
+    precipitation: float | None = None
+    native_pressure: float | None = None
+    pressure: float | None = None
+    native_temperature: float | None = None
+    temperature: float | None = None
+    native_templow: float | None = None
+    templow: float | None = None
+    native_apparent_temperature: float | None = None
+    wind_bearing: float | str | None = None
+    native_wind_gust_speed: float | None = None
+    native_wind_speed: float | None = None
+    wind_speed: float | None = None
+    native_dew_point: float | None = None
+    uv_index: float | None = None
+    is_daytime: bool | None = None
     ozone: float | None = None
     forecast: list[WeatherForecast] | None = None
 
 
 @REGISTRY.register(Platform.WEATHER)
 class WeatherEntity(HAEntity):
-    domain: Platform.WEATHER
+    domain: Literal[Platform.WEATHER]
     attributes: WeatherAttributes
