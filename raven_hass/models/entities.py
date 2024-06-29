@@ -1,8 +1,8 @@
 from datetime import date, datetime, time
 from enum import IntEnum, IntFlag, StrEnum
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 from pydantic import BaseModel, computed_field, model_validator
-from .util import Registry
+from .util import Registry, RegisteredModel
 
 REGISTRY = Registry()
 
@@ -103,7 +103,7 @@ class BaseAttributes(BaseModel):
     enabled: bool = True
 
 
-class HAEntity(BaseModel):
+class HAEntity(RegisteredModel):
     entity_id: str
     domain: Platform
     name: str

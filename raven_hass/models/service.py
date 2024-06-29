@@ -1,7 +1,7 @@
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 from pydantic import BaseModel, Field, field_validator
-from .util import Registry
+from .util import Registry, RegisteredModel
 
 
 class EntityFilterSelectorConfig(BaseModel):
@@ -21,19 +21,19 @@ REGISTRY = Registry()
 
 
 @REGISTRY.register("action")
-class ActionSelector(BaseModel):
+class ActionSelector(RegisteredModel):
     selector_type: Literal["action"]
 
 
 @REGISTRY.register("addon")
-class AddonSelector(BaseModel):
+class AddonSelector(RegisteredModel):
     selector_type: Literal["addon"]
     name: str | None = None
     slug: str | None = None
 
 
 @REGISTRY.register("area")
-class AreaSelector(BaseModel):
+class AreaSelector(RegisteredModel):
     selector_type: Literal["area"]
     entity: EntityFilterSelectorConfig | list[EntityFilterSelectorConfig] | None = None
     device: DeviceFilterSelectorConfig | list[DeviceFilterSelectorConfig] | None = None
@@ -41,29 +41,29 @@ class AreaSelector(BaseModel):
 
 
 @REGISTRY.register("assist_pipeline")
-class AssistPipelineSelector(BaseModel):
+class AssistPipelineSelector(RegisteredModel):
     selector_type: Literal["assist_pipeline"]
 
 
 @REGISTRY.register("attribute")
-class AttributeSelector(BaseModel):
+class AttributeSelector(RegisteredModel):
     selector_type: Literal["attribute"]
     entity_id: str
     hide_attributes: list[str] = []
 
 
 @REGISTRY.register("backup_location")
-class BackupLocationSelector(BaseModel):
+class BackupLocationSelector(RegisteredModel):
     selector_type: Literal["backup_location"]
 
 
 @REGISTRY.register("color_rgb")
-class ColorRGBSelector(BaseModel):
+class ColorRGBSelector(RegisteredModel):
     selector_type: Literal["color_rgb"]
 
 
 @REGISTRY.register("color_temp")
-class ColorTempSelector(BaseModel):
+class ColorTempSelector(RegisteredModel):
     selector_type: Literal["color_temp"]
     unit: Literal["kelvin", "mired"] = "mired"
     min: int | None = None
@@ -73,17 +73,17 @@ class ColorTempSelector(BaseModel):
 
 
 @REGISTRY.register("condition")
-class ConditionSelector(BaseModel):
+class ConditionSelector(RegisteredModel):
     selector_type: Literal["condition"]
 
 
 @REGISTRY.register("config_entry")
-class ConfigEntrySelector(BaseModel):
+class ConfigEntrySelector(RegisteredModel):
     selector_type: Literal["config_entry"]
 
 
 @REGISTRY.register("qr_code")
-class QrCodeSelector(BaseModel):
+class QrCodeSelector(RegisteredModel):
     selector_type: Literal["qr_code"]
     data: str
     scale: int | None = None
@@ -91,30 +91,30 @@ class QrCodeSelector(BaseModel):
 
 
 @REGISTRY.register("conversation_agent")
-class ConversationAgentSelector(BaseModel):
+class ConversationAgentSelector(RegisteredModel):
     selector_type: Literal["conversation_agent"]
     language: str | None = None
 
 
 @REGISTRY.register("country")
-class CountrySelector(BaseModel):
+class CountrySelector(RegisteredModel):
     selector_type: Literal["country"]
     countries: list[str] | None = None
     no_sort: bool = False
 
 
 @REGISTRY.register("date")
-class DateSelector(BaseModel):
+class DateSelector(RegisteredModel):
     selector_type: Literal["date"]
 
 
 @REGISTRY.register("datetime")
-class DateTimeSelector(BaseModel):
+class DateTimeSelector(RegisteredModel):
     selector_type: Literal["datetime"]
 
 
 @REGISTRY.register("device")
-class DeviceSelector(BaseModel):
+class DeviceSelector(RegisteredModel):
     selector_type: Literal["device"]
     entity: EntityFilterSelectorConfig | list[EntityFilterSelectorConfig] | None = None
     multiple: bool = False
@@ -122,14 +122,14 @@ class DeviceSelector(BaseModel):
 
 
 @REGISTRY.register("duration")
-class DurationSelector(BaseModel):
+class DurationSelector(RegisteredModel):
     selector_type: Literal["duration"]
     enable_day: bool | None = None
     allow_negative: bool | None = None
 
 
 @REGISTRY.register("entity")
-class EntitySelector(BaseModel):
+class EntitySelector(RegisteredModel):
     selector_type: Literal["entity"]
     exclude_entities: list[str] | None = None
     include_entities: list[str] | None = None
@@ -138,7 +138,7 @@ class EntitySelector(BaseModel):
 
 
 @REGISTRY.register("floor")
-class FloorSelector(BaseModel):
+class FloorSelector(RegisteredModel):
     selector_type: Literal["floor"]
     entity: EntityFilterSelectorConfig | list[EntityFilterSelectorConfig] | None = None
     device: DeviceFilterSelectorConfig | list[DeviceFilterSelectorConfig] | None = None
@@ -146,13 +146,13 @@ class FloorSelector(BaseModel):
 
 
 @REGISTRY.register("label")
-class LabelSelector(BaseModel):
+class LabelSelector(RegisteredModel):
     selector_type: Literal["label"]
     multiple: bool = False
 
 
 @REGISTRY.register("language")
-class LanguageSelector(BaseModel):
+class LanguageSelector(RegisteredModel):
     selector_type: Literal["language"]
     languages: list[str] | None = None
     native_name: bool = False
@@ -160,58 +160,58 @@ class LanguageSelector(BaseModel):
 
 
 @REGISTRY.register("location")
-class LocationSelector(BaseModel):
+class LocationSelector(RegisteredModel):
     selector_type: Literal["location"]
     radius: bool | None = None
     icon: str | None = None
 
 
 @REGISTRY.register("media")
-class MediaSelector(BaseModel):
+class MediaSelector(RegisteredModel):
     selector_type: Literal["media"]
 
 
 @REGISTRY.register("state")
-class StateSelector(BaseModel):
+class StateSelector(RegisteredModel):
     selector_type: Literal["state"]
     entity_id: str
 
 
 @REGISTRY.register("target")
-class TargetSelector(BaseModel):
+class TargetSelector(RegisteredModel):
     selector_type: Literal["target"]
     entity: EntityFilterSelectorConfig | list[EntityFilterSelectorConfig] | None = None
     device: DeviceFilterSelectorConfig | list[DeviceFilterSelectorConfig] | None = None
 
 
 @REGISTRY.register("template")
-class TemplateSelector(BaseModel):
+class TemplateSelector(RegisteredModel):
     selector_type: Literal["template"]
 
 
 @REGISTRY.register("theme")
-class ThemeSelector(BaseModel):
+class ThemeSelector(RegisteredModel):
     selector_type: Literal["theme"]
 
 
 @REGISTRY.register("time")
-class TimeSelector(BaseModel):
+class TimeSelector(RegisteredModel):
     selector_type: Literal["time"]
 
 
 @REGISTRY.register("trigger")
-class TriggerSelector(BaseModel):
+class TriggerSelector(RegisteredModel):
     selector_type: Literal["trigger"]
 
 
 @REGISTRY.register("file")
-class FileSelector(BaseModel):
+class FileSelector(RegisteredModel):
     selector_type: Literal["file"]
     accept: str
 
 
 @REGISTRY.register("icon")
-class IconSelector(BaseModel):
+class IconSelector(RegisteredModel):
     selector_type: Literal["icon"]
     placeholder: str | None = None
 
@@ -235,7 +235,7 @@ class TextSelectorType(StrEnum):
 
 
 @REGISTRY.register("text")
-class TextSelector(BaseModel):
+class TextSelector(RegisteredModel):
     selector_type: Literal["text"]
     multiline: bool = False
     prefix: str | None = None
@@ -251,7 +251,7 @@ class SelectOption(BaseModel):
 
 
 @REGISTRY.register("select")
-class SelectSelector(BaseModel):
+class SelectSelector(RegisteredModel):
     selector_type: Literal["select"]
     options: list[SelectOption] = []
     multiple: bool = False
@@ -274,7 +274,7 @@ class SelectSelector(BaseModel):
 
 
 @REGISTRY.register("number")
-class NumberSelector(BaseModel):
+class NumberSelector(RegisteredModel):
     selector_type: Literal["number"]
     min: int | float | None = None
     max: int | float | None = None
@@ -284,17 +284,17 @@ class NumberSelector(BaseModel):
 
 
 @REGISTRY.register("boolean")
-class BooleanSelector(BaseModel):
+class BooleanSelector(RegisteredModel):
     selector_type: Literal["boolean"]
 
 
 @REGISTRY.register("object")
-class ObjectSelector(BaseModel):
+class ObjectSelector(RegisteredModel):
     selector_type: Literal["object"]
 
 
 @REGISTRY.register("constant")
-class ConstantSelector(BaseModel):
+class ConstantSelector(RegisteredModel):
     selector_type: Literal["constant"]
     value: Any = None
     label: str | None = None
@@ -371,6 +371,7 @@ class ServiceField(BaseModel):
 
 
 class Service(BaseModel):
+    _client: ClassVar[Any] = None
     domain: str
     service: str
     name: str
@@ -400,3 +401,7 @@ class Service(BaseModel):
             for service_name, service in domain_services.items():
                 results.append(Service(domain=domain, service=service_name, **service))
         return results
+
+    @classmethod
+    def set_client(cls, client: Any):
+        cls._client = client

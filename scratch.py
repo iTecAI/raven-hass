@@ -14,17 +14,9 @@ async def main():
     ) as client:
         print(client.hass_version)
         result = await client.send_ws_command("get_services")
-        with open("services.test.json", "w") as f:
-            print(
-                json.dumps(
-                    [
-                        i.model_dump(mode="json")
-                        for i in Service.from_services(result.result)
-                    ],
-                    indent=4,
-                ),
-                file=f,
-            )
+        for svc in Service.from_services(result.result):
+            for field in svc.fields.values():
+                print(field.selector.client)
 
 
 asyncio.run(main())

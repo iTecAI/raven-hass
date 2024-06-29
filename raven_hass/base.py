@@ -6,7 +6,15 @@ from urllib.parse import urlparse
 from uuid import uuid4
 from httpx import AsyncClient
 from websockets import ConnectionClosed, WebSocketClientProtocol, connect
-from .models import WS_MESSAGE_TYPES, WSMessage, WSResult, WSEvent
+from .models import (
+    WS_MESSAGE_TYPES,
+    WSMessage,
+    WSResult,
+    WSEvent,
+    ENTITY_MODELS,
+    SERVICE_MODELS,
+    Service,
+)
 from pydantic import BaseModel
 
 TMessage = TypeVar("TMessage", bound=WSMessage)
@@ -24,6 +32,10 @@ class BaseApi:
         self.ws_active = Event()
         self.hass_version: str | None = None
         self.ws_id = 1
+
+        ENTITY_MODELS.assign_client(self)
+        SERVICE_MODELS.assign_client(self)
+        Service.set_client(self)
 
     @property
     def rest(self) -> AsyncClient:
