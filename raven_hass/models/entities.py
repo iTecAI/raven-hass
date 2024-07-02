@@ -1730,8 +1730,8 @@ class WeatherForecast(BaseModel):
     condition: str | None = None
     datetime: str | None = None
     humidity: float | None = None
-    precipitation_probability: int | None = None
-    cloud_coverage: int | None = None
+    precipitation_probability: float | None = None
+    cloud_coverage: float | None = None
     native_precipitation: float | None = None
     precipitation: float | None = None
     native_pressure: float | None = None
@@ -1754,8 +1754,8 @@ class WeatherAttributes(BaseAttributes):
     condition: str | None = None
     datetime: str | None = None
     humidity: float | None = None
-    precipitation_probability: int | None = None
-    cloud_coverage: int | None = None
+    precipitation_probability: float | None = None
+    cloud_coverage: float | None = None
     native_precipitation: float | None = None
     precipitation: float | None = None
     native_pressure: float | None = None
