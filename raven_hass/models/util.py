@@ -1,4 +1,4 @@
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Type
 
 from pydantic import BaseModel
 
@@ -32,7 +32,7 @@ class Registry:
         if len(keys) == 0:
             raise ValueError("At least one key must be specified")
 
-        def register_inner(original_class: Any):
+        def register_inner[T](original_class: Type[T]):
             for key in keys:
                 original_class.set_registry(self)
                 original_class.model_rebuild()
