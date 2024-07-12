@@ -181,3 +181,9 @@ class BaseApi:
         if result.success:
             return [HAEntity.resolve_entity(entity) for entity in result.result]
         return []
+    
+    async def get_entity(self, id: str) -> HAEntity | None:
+        result = await self.rest.get(f"{self.host}/api/states/{id}")
+        if result.is_success:
+            return HAEntity.resolve_entity(result.json())
+        return None
